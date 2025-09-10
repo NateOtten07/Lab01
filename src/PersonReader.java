@@ -1,79 +1,79 @@
 import javax.swing.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static java.nio.file.StandardOpenOption.CREATE;
+import java.nio.file.*;
+import java.util.ArrayList;
 
 /**
- *
- * @author ottennr
- *
+ * Reads Person records from a CSV file and prints them in a table,
+ * JSON, and XML formats.
  */
-public class PersonReader
-{
+public class PersonReader {
 
     /**
-     * @param args the command line arguments
+     * Runs the program: prompts for a file, reads Person data, prints table, JSON, and XML.
+     * @param args
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         JFileChooser chooser = new JFileChooser();
         File selectedFile;
-        String rec = "";
 
-        try
-        {
+        try {
             File workingDirectory = new File(System.getProperty("user.dir"));
-
             chooser.setCurrentDirectory(workingDirectory);
 
-            if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 selectedFile = chooser.getSelectedFile();
                 Path file = selectedFile.toPath();
-                InputStream in =
-                        new BufferedInputStream(Files.newInputStream(file, CREATE));
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(in));
-                String line;
 
+                ArrayList<Person> people = new ArrayList<>();
 
+                try (BufferedReader reader = Files.newBufferedReader(file)) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.trim().isEmpty()) continue;
 
-                System.out.println(String.format("%-10s %-15s %-15s %-10s %-5s",
-                        "ID#", "Firstname", "Lastname", "Title", "YOB"));
-                System.out.println("==============================================================");
+                        String[] parts = line.split(",");
+                        if (parts.length == 5) {   // expecting CSV format: ID, first, last, title, YOB
+                            String id = parts[0].trim();
+                            String first = parts[1].trim();
+                            String last = parts[2].trim();
+                            String title = parts[3].trim();
+                            int yob = Integer.parseInt(parts[4].trim());
 
-                while ((line = reader.readLine()) != null) {
-
-                    if (line.trim().isEmpty()) continue;
-
-
-                    String[] parts = line.split(",");
-
-
-                    if (parts.length == 5) {
-                        String id = parts[0].trim();
-                        String first = parts[1].trim();
-                        String last = parts[2].trim();
-                        String title = parts[3].trim();
-                        String yob = parts[4].trim();
-
-
-                        System.out.println(String.format("%-10s %-15s %-15s %-10s %-5s",
-                                id, first, last, title, yob));
+                            people.add(new Person(id, first, last, title, yob));
+                        }
                     }
                 }
+
+                //CSV
+                System.out.println("CSV:");
+                for (Person p : people)
+                {
+                    System.out.println(p.toCSV());
+                }
+                System.out.println("\n");
+
+                //JSON
+                System.out.println("JSON: [");
+                for (Person p : people)
+                {
+                    System.out.println(p.toJSON());
+                }
+                System.out.println("]");
+                System.out.println("\n");
+
+                //XML
+                System.out.println("XML:");
+                System.out.println("<Persons>");
+                for (Person p : people)
+                {
+                System.out.println(p.toXML());
+                }
+                System.out.println("</Persons>");
+                System.out.println("\n");
             }
-        }
-        catch (FileNotFoundException e)
-        {
-            System.out.println("File not found!!!");
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }

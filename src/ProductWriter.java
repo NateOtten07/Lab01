@@ -7,34 +7,39 @@ import java.util.Scanner;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+/**
+ * Recieves input from a user on data about a product
+ */
 public class ProductWriter
 {
+    /**
+     * Runs the program: Writes the data to a file called "ProductTestData"
+     * @param args
+     */
     public static void main(String[] args)
     {
 
         String ID = "";
         String Name = "";
         String Description = "";
-        String CSVPersonRec = "";
-        Double Cost = (double) 0;
+        String Product = "";
+        double Cost = 0;
 
         Scanner in = new Scanner(System.in);
-        ArrayList<String> csvPersons = new ArrayList<>();
+        ArrayList<String> Products = new ArrayList<>();
 
 
         boolean done = false;
 
         do{
             ID = SafeInput.getNonZeroLenString(in, "Enter ID");
-            Name = SafeInput.getNonZeroLenString(in, "Enter Name");
-            Description = SafeInput.getNonZeroLenString(in, "Enter Description (short sentence)");
-            Cost = SafeInput.getRangedDouble(in, "Enter Cost", 0, 9999);
+            Name = SafeInput.getNonZeroLenString(in, "Enter Product Name");
+            Description = SafeInput.getNonZeroLenString(in, "Enter Product Description");
+            Cost = SafeInput.getRangedInt(in, "Enter Product Cost", 0, 9999);
 
-            CSVPersonRec = ID + ", " + Name + ", " + Description + ", " + Cost + "\n";
+            Product = ID + ", " + Name + ", " + Description + ", " + Cost + "\n";
 
-            csvPersons.add(CSVPersonRec);
+            Products.add(Product);
 
             done = SafeInput.getYNConfirm(in, "Are you done?");
 
@@ -50,7 +55,7 @@ public class ProductWriter
             BufferedWriter writer =
                     new BufferedWriter(new OutputStreamWriter(out));
 
-            for(String rec: csvPersons)
+            for(String rec: Products)
             {
                 writer.write(rec,0,rec.length());
                 writer.newLine();
